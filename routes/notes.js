@@ -1,6 +1,6 @@
 const notes = require('express').Router();
 
-// TODO DELETE Route for a specific tip
+// TODO DELETE Route for a specific note
 notes.delete('/:note_id', (req, res) => {
     const tipId = req.params.tip_id;
     readFromFile('./db/db.json')
