@@ -25,7 +25,8 @@ notes.delete('/:note_id', (req, res) => {
 
   // GET Route for retrieving all the notes
 notes.get('/', (req, res) => {
-    readFromFile('./db/notes.json').then((data) => res.json(JSON.parse(data)));
+    console.info(`${req.method} request received`);
+    fsUtils.readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
   });
 
   // POST Route for a new note
