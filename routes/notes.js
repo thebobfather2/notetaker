@@ -1,8 +1,13 @@
+const express = require('express');
+const router = express.Router();
+const fs = require('fs');
 const notes = require('express').Router();
+const { v4: uuidv4 } = require('uuid');
+const fsUtils = require('../helpers/fsUtils');
 
 // TODO DELETE Route for a specific note
 notes.delete('/:note_id', (req, res) => {
-    const tipId = req.params.tip_id;
+    const noteId = req.params.note_id;
     readFromFile('./db/db.json')
       .then((data) => JSON.parse(data))
       .then((json) => {
@@ -13,7 +18,7 @@ notes.delete('/:note_id', (req, res) => {
         writeToFile('./db/db.json', result);
   
         // Respond to the DELETE request
-        res.json(`Item ${tipId} has been deleted 🗑️`);
+        res.json(`Item ${noteId} has been deleted 🗑️`);
       });
   });
   // TODO end delete
@@ -23,10 +28,10 @@ notes.get('/', (req, res) => {
     readFromFile('./db/notes.json').then((data) => res.json(JSON.parse(data)));
   });
 
-  // POST Route for a new UX/UI note
+  // POST Route for a new note
 notes.post('/', (req, res) => {
     console.log(req.body);
-  
+    console.info(`${req.method} request received`);
     // TODO fix below - update properties
     const { title, text, note } = req.body;
   
@@ -38,8 +43,9 @@ notes.post('/', (req, res) => {
         note_id: uuidv4(),
       };
   
-      readAndAppend(newNote, './db/notes.json');
-      res.json(`Note added successfully 🚀`);
+      fsUtils.readAndAppend(newNote, './db/db.json');
+      console.info(`Note added successfully 🚀`)
+      res.json(newNote);
     } else {
       res.error('Error in adding note');
     }
