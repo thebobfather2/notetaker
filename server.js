@@ -1,30 +1,36 @@
+// Packages / Dependencies.
 const express = require('express');
 const path = require('path');
-const fs = require("fs");
-const api = require('./routes/index.js');
-const routes = require('./routes');
-
-const PORT = process.env.port || 3000;
-
+// PORT
+const PORT = process.env.PORT || 3001;
+// Express function.
 const app = express();
 
-// Middleware for parsing JSON and urlencoded form data
+// Recognizes the incoming Request Object as a JSON Object.
 app.use(express.json());
+// It parses incoming requests with urlencoded payloads and is based on body-parser.
 app.use(express.urlencoded({ extended: true }));
-app.use('/api', api);
-
+// Makes the public folder available to the client.
 app.use(express.static('public'));
 
-// GET Route for homepage
-app.get('/', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/index.html'))
-);
+// Routes.
+const notes = require('./routes/notes');
+// Loads the router module in the app.
+app.use('/api/notes', notes);
 
-// GET Route for notes page
-app.get('/notes', (req, res) =>
-  res.sendFile(path.join(__dirname, '/public/notes.html'))
-);
+// GET Route for notes page.
+app.get('/notes', (req, res) => {
+    // Logs the request to the terminal.
+    console.info(`${req.method} request received for ${req.path}`);
+    res.sendFile(path.join(__dirname, '/public/pages/notes.html'));
+})
 
-app.listen(PORT, () =>
-  console.log(`App listening at http://localhost:${PORT} 🚀`)
-);
+// GET Route for homepage / Fallback route.
+app.get('*', (req, res) => {
+    // Logs the request to the terminal.
+    console.info(`${req.method} request received for ${req.path}`);
+    res.sendFile(path.join(__dirname, '/public/index.html'));
+})
+
+// Listens the PORT and starts node.
+app.listen(PORT, () => console.log(`App listening at http://localhost:${PORT} 🚀`));
