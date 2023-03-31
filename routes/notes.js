@@ -1,55 +1,62 @@
+// Packages / Dependencies.
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
-const notes = require('express').Router();
+// Helper method that gives each note a unique id when it's saved.
 const { v4: uuidv4 } = require('uuid');
+// Modules needed.
 const fsUtils = require('../helpers/fsUtils');
 
-// TODO DELETE Route for a specific note
-notes.delete('/:note_id', (req, res) => {
-    const noteId = req.params.note_id;
-    readFromFile('./db/db.json')
-      .then((data) => JSON.parse(data))
-      .then((json) => {
-        // Make a new array of all notes except the one with the ID provided in the URL
-        const result = json.filter((note) => note.note_id !== noteId);
-  
-        // Save that array to the filesystem
-        writeToFile('./db/db.json', result);
-  
-        // Respond to the DELETE request
-        res.json(`Item ${noteId} has been deleted 🗑️`);
-      });
-  });
-  // TODO end delete
-
-  // GET Route for retrieving all the notes
-notes.get('/', (req, res) => {
+// GET Route for retrieving all the notes.
+router.get('/', (req, res) => {
+    // Logs the request to the terminal.
     console.info(`${req.method} request received`);
-    fsUtils.readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)));
-  });
+    // Reads the db.json file and return all saved notes as JSON.
+    fsUtils.readFromFile(fsUtils.fileName)
+        .then((data) => {
+            res.json(JSON.parse(data))
+            console.log(data);
+        })
+        .catch((err) => {
+            console.info(err)
+        })
+});
 
-  // POST Route for a new note
-notes.post('/', (req, res) => {
-    console.log(req.body);
+// POST Route for a new note.
+router.post('/', (req, res) => {
+    // Logs the request to the terminal.
     console.info(`${req.method} request received`);
-    // TODO fix below - update properties
-    const { title, text, note } = req.body;
-  
+    // Object destructuring assignment
+    const { title, text } = req.body;
     if (req.body) {
-      const newNote = {
-        title,
-        text,
-        note,
-        note_id: uuidv4(),
-      };
-  
-      fsUtils.readAndAppend(newNote, './db/db.json');
-      console.info(`Note added successfully 🚀`)
-      res.json(newNote);
+        const newNote = {
+            title,
+            text,
+            id: uuidv4(),
+        };
+        // Obtain existing notes and write updated notes back to the file.
+        fsUtils.readAndAppend(newNote);
+        console.info(`Note added successfully 🚀`)
+        res.json(newNote);
     } else {
-      res.error('Error in adding note');
+        res.status(500).json('Error in posting note');
     }
-  });
+});
 
-  module.exports = notes;
+// DELETE Route to delete a specific note.
+router.delete('/:id', (req, res) => {
+    // Logs the request to the terminal.
+    console.info(`${req.method} request received`);
+    // This function blocks the rest of the code from executing until all the data is read from a file.
+    let rawdata = fs.readFileSync(fsUtils.fileName)
+    // Convert rawdata (in a Buffer) into JSON object.
+    let parsedData = JSON.parse(rawdata);
+    // Filters the array to remove the query parameter that contains the ID of the note that the user wants to delete. 
+    notesArr = parsedData.filter(note => note.id != req.params.id)
+    // Writes updated notes back to the file.
+    fsUtils.writeToFile(fsUtils.fileName, notesArr);
+    console.info(`Note deleted successfully 🚀`)
+    res.json(notesArr);
+})
+
+module.exports = router;
