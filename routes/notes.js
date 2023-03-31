@@ -1,16 +1,16 @@
 const notes = require('express').Router();
 
 // TODO DELETE Route for a specific tip
-tips.delete('/:tip_id', (req, res) => {
+notes.delete('/:note_id', (req, res) => {
     const tipId = req.params.tip_id;
-    readFromFile('./db/tips.json')
+    readFromFile('./db/db.json')
       .then((data) => JSON.parse(data))
       .then((json) => {
-        // Make a new array of all tips except the one with the ID provided in the URL
-        const result = json.filter((tip) => tip.tip_id !== tipId);
+        // Make a new array of all notes except the one with the ID provided in the URL
+        const result = json.filter((note) => note.note_id !== noteId);
   
         // Save that array to the filesystem
-        writeToFile('./db/tips.json', result);
+        writeToFile('./db/db.json', result);
   
         // Respond to the DELETE request
         res.json(`Item ${tipId} has been deleted 🗑️`);
