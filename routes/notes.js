@@ -1,21 +1,16 @@
-// Packages / Dependencies.
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
-// Helper method that gives each note a unique id when it's saved.
 const { v4: uuidv4 } = require('uuid');
-// Modules needed.
 const fsUtils = require('../helpers/fsUtils');
 
 // GET Route for retrieving all the notes.
 router.get('/', (req, res) => {
-    // Logs the request to the terminal.
     console.info(`${req.method} request received`);
     // Reads the db.json file and return all saved notes as JSON.
     fsUtils.readFromFile(fsUtils.fileName)
         .then((data) => {
-            res.json(JSON.parse(data))
-            console.log(data);
+            res.json(JSON.parse(data));
         })
         .catch((err) => {
             console.info(err)
@@ -24,9 +19,7 @@ router.get('/', (req, res) => {
 
 // POST Route for a new note.
 router.post('/', (req, res) => {
-    // Logs the request to the terminal.
     console.info(`${req.method} request received`);
-    // Object destructuring assignment
     const { title, text } = req.body;
     if (req.body) {
         const newNote = {
@@ -34,7 +27,6 @@ router.post('/', (req, res) => {
             text,
             id: uuidv4(),
         };
-        // Obtain existing notes and write updated notes back to the file.
         fsUtils.readAndAppend(newNote);
         console.info(`Note added successfully 🚀`)
         res.json(newNote);
@@ -45,7 +37,6 @@ router.post('/', (req, res) => {
 
 // DELETE Route to delete a specific note.
 router.delete('/:id', (req, res) => {
-    // Logs the request to the terminal.
     console.info(`${req.method} request received`);
     // This function blocks the rest of the code from executing until all the data is read from a file.
     let rawdata = fs.readFileSync(fsUtils.fileName)
